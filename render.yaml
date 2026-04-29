@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: inventory-manager
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /products
+    autoDeploy: true
+    envVars:
+      - key: JAVA_OPTS
+        value: -Xms256m -Xmx450m

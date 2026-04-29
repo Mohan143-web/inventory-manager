@@ -3,6 +3,14 @@
 A Spring Boot full-stack inventory app: products, categories, stock levels,
 search/filter with pagination, and low-stock alerts.
 
+## Deploy
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Mohan143-web/inventory-manager)
+
+Click the button above (free Render account required). The app will build from
+the included `Dockerfile` and `render.yaml`. First boot takes ~5 min; the free
+instance sleeps after 15 min idle and cold-starts on next request.
+
 ## Tech stack
 - Spring Boot 2.7.18 (Java 16)
 - Spring Data JPA + H2 (in-memory)

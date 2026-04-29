@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(title='Products', content=~{::main})}">
+<body>
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Products</h2>
+        <a th:href="@{/products/new}" class="btn btn-primary">+ New Product</a>
+    </div>
+
+    <div th:if="${lowStockCount > 0}" class="alert alert-warning d-flex justify-content-between">
+        <span><strong th:text="${lowStockCount}">0</strong> product(s) at or below low-stock threshold.</span>
+        <a th:href="@{/alerts}" class="btn btn-sm btn-outline-dark">View alerts</a>
+    </div>
+
+    <form th:action="@{/products}" method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="text" name="q" class="form-control" placeholder="Search by name or SKU"
+                   th:value="${q}">
+        </div>
+        <div class="col-md-3">
+            <select name="categoryId" class="form-select">
+                <option value="">All categories</option>
+                <option th:each="c : ${categories}"
+                        th:value="${c.id}" th:text="${c.name}"
+                        th:selected="${categoryId != null and categoryId == c.id}"></option>
+            </select>
+        </div>
+        <div class="col-md-3 form-check d-flex align-items-center">
+            <input class="form-check-input me-2" type="checkbox" name="lowStockOnly" value="true"
+                   id="lowStockOnly" th:checked="${lowStockOnly}">
+            <label class="form-check-label" for="lowStockOnly">Low-stock only</label>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary w-100">Filter</button>
+        </div>
+    </form>
+
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Name</th><th>SKU</th><th>Category</th>
+                <th class="text-end">Price</th>
+                <th class="text-end">Stock</th>
+                <th class="text-end">Threshold</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${page.content}" th:classappend="${p.lowStock} ? 'table-warning' : ''">
+                <td th:text="${p.name}">Name</td>
+                <td><code th:text="${p.sku}">SKU</code></td>
+                <td th:text="${p.category.name}">Cat</td>
+                <td class="text-end" th:text="${#numbers.formatDecimal(p.price, 1, 2)}">0.00</td>
+                <td class="text-end" th:text="${p.stockLevel}">0</td>
+                <td class="text-end" th:text="${p.lowStockThreshold}">0</td>
+                <td>
+                    <span th:if="${p.lowStock}" class="badge bg-warning text-dark">Low</span>
+                    <span th:unless="${p.lowStock}" class="badge bg-success">OK</span>
+                </td>
+                <td class="text-end">
+                    <form th:action="@{|/products/${p.id}/adjust-stock|}" method="post" class="d-inline">
+                        <input type="hidden" name="delta" value="1">
+                        <button class="btn btn-sm btn-outline-success" title="Receive 1">+1</button>
+                    </form>
+                    <form th:action="@{|/products/${p.id}/adjust-stock|}" method="post" class="d-inline">
+                        <input type="hidden" name="delta" value="-1">
+                        <button class="btn btn-sm btn-outline-secondary" title="Sell 1">-1</button>
+                    </form>
+                    <a th:href="@{|/products/${p.id}/edit|}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form th:action="@{|/products/${p.id}/delete|}" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this product?')">Del</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${page.empty}">
+                <td colspan="8" class="text-center text-muted">No products match.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <nav th:if="${page.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${page.first} ? 'disabled' : ''">
+                <a class="page-link"
+                   th:href="@{/products(page=${page.number - 1}, size=${page.size}, q=${q}, categoryId=${categoryId}, lowStockOnly=${lowStockOnly})}">«</a>
+            </li>
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                th:classappend="${i == page.number} ? 'active' : ''">
+                <a class="page-link"
+                   th:href="@{/products(page=${i}, size=${page.size}, q=${q}, categoryId=${categoryId}, lowStockOnly=${lowStockOnly})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${page.last} ? 'disabled' : ''">
+                <a class="page-link"
+                   th:href="@{/products(page=${page.number + 1}, size=${page.size}, q=${q}, categoryId=${categoryId}, lowStockOnly=${lowStockOnly})}">»</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="text-center text-muted small">
+        Page <span th:text="${page.number + 1}"></span> of <span th:text="${page.totalPages}"></span>
+        — <span th:text="${page.totalElements}"></span> total
+    </p>
+</main>
+</body>
+</html>

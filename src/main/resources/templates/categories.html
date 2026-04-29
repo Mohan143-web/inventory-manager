@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(title='Categories', content=~{::main})}">
+<body>
+<main>
+    <h2>Categories</h2>
+
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <form th:action="@{/categories}" method="post" class="row g-2 my-3">
+        <div class="col-md-6">
+            <input type="text" name="name" class="form-control" placeholder="New category name"
+                   maxlength="80" required>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Add</button>
+        </div>
+    </form>
+
+    <table class="table">
+        <thead><tr><th>Name</th><th>Products</th><th></th></tr></thead>
+        <tbody>
+            <tr th:each="c : ${categories}">
+                <td th:text="${c.name}">Name</td>
+                <td th:text="${c.products.size()}">0</td>
+                <td class="text-end">
+                    <form th:action="@{|/categories/${c.id}/delete|}" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this category?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(categories)}">
+                <td colspan="3" class="text-muted text-center">No categories.</td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(title='Low-stock alerts', content=~{::main})}">
+<body>
+<main>
+    <h2>Low-stock alerts</h2>
+    <p class="text-muted">Products at or below their configured low-stock threshold.</p>
+
+    <div th:if="${#lists.isEmpty(products)}" class="alert alert-success">
+        All products are above threshold. Nothing to reorder.
+    </div>
+
+    <table th:unless="${#lists.isEmpty(products)}" class="table">
+        <thead>
+            <tr><th>Name</th><th>SKU</th><th>Category</th>
+                <th class="text-end">Stock</th><th class="text-end">Threshold</th><th></th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${products}" class="table-warning">
+                <td th:text="${p.name}">Name</td>
+                <td><code th:text="${p.sku}">SKU</code></td>
+                <td th:text="${p.category.name}">Cat</td>
+                <td class="text-end" th:text="${p.stockLevel}">0</td>
+                <td class="text-end" th:text="${p.lowStockThreshold}">0</td>
+                <td class="text-end">
+                    <a th:href="@{|/products/${p.id}/edit|}" class="btn btn-sm btn-outline-primary">Restock</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
